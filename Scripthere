@@ -1,0 +1,91 @@
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "DinabytesGUI"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Create main frame (menu)
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 200, 0, 150)
+mainFrame.Position = UDim2.new(0, 50, 0, 50)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.BorderSizePixel = 2
+mainFrame.Parent = screenGui
+
+-- Create title label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Text = "Dinabytes"
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextSize = 30
+titleLabel.TextColor3 = Color3.new(1, 1, 1)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Size = UDim2.new(1, 0, 0, 40)
+titleLabel.Parent = mainFrame
+
+-- Create toggle button (small square)
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 30, 0, 30)
+toggleButton.Position = UDim2.new(1, -35, 0, 5)
+toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+toggleButton.Text = "+"
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextSize = 20
+toggleButton.TextColor3 = Color3.new(1, 1, 1)
+toggleButton.Parent = mainFrame
+
+-- Create the menu content frame (for options)
+local menuFrame = Instance.new("Frame")
+menuFrame.Size = UDim2.new(1, 0, 1, -40)
+menuFrame.Position = UDim2.new(0, 0, 0, 40)
+menuFrame.BackgroundTransparency = 1
+menuFrame.Parent = mainFrame
+
+-- Create Infinite Jump toggle button
+local infJumpButton = Instance.new("TextButton")
+infJumpButton.Size = UDim2.new(1, -20, 0, 40)
+infJumpButton.Position = UDim2.new(0, 10, 0, 10)
+infJumpButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+infJumpButton.Text = "Infinite Jump: OFF"
+infJumpButton.Font = Enum.Font.SourceSans
+infJumpButton.TextSize = 20
+infJumpButton.TextColor3 = Color3.new(1, 1, 1)
+infJumpButton.Parent = menuFrame
+
+-- Initially hide menuFrame
+menuFrame.Visible = false
+
+-- Toggle menu visibility when clicking the square button
+toggleButton.MouseButton1Click:Connect(function()
+    menuFrame.Visible = not menuFrame.Visible
+    toggleButton.Text = menuFrame.Visible and "−" or "+"
+end)
+
+-- Infinite Jump logic
+local enabled = false
+local jumpConnection
+
+local function toggleInfiniteJump()
+    enabled = not enabled
+    if enabled then
+        infJumpButton.Text = "Infinite Jump: ON"
+        jumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+            local character = player.Character
+            if character and character:FindFirstChildOfClass("Humanoid") then
+                character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end)
+    else
+        infJumpButton.Text = "Infinite Jump: OFF"
+        if jumpConnection then
+            jumpConnection:Disconnect()
+            jumpConnection = nil
+        end
+    end
+end
+
+-- Bind toggle to the button
+infJumpButton.MouseButton1Click:Connect(toggleInfiniteJump)
